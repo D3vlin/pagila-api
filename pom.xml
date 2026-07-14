@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>co.d3vlin</groupId>
 	<artifactId>pagila-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<version>1.0.0</version>
+	<name>pagila-api</name>
+	<description>API for Pagila Project</description>
 	<url/>
 	<licenses>
 		<license/>

@@ -1,3 +1,33 @@
 spring:
   application:
     name: pagila-api
+  data:
+    web:
+      pageable:
+        page-parameter: page
+        size-parameter: size
+      sort:
+        sort-parameter: sort
+springdoc:
+  enabled-spring-security: true
+  cache:
+    disabled: true
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-docs.html
+    operationsSorter: method
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    info:
+      show-details: always
+server:
+  servlet:
+    context-path: /pagila

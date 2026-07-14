@@ -1,0 +1,43 @@
+spring:
+  config:
+    import: "optional:vault://"
+  datasource:
+    url: jdbc:postgresql://${db.host}:${db.port}/${db.name}
+    username: ${db.username}
+    password: ${db.password}
+    hikari:
+      auto-commit: false
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+      max-lifetime: 3600000
+      idle-timeout: 1800000
+      connection-timeout: 30000
+      initialization-fail-timeout: 0
+      minimum-idle: 2
+      maximum-pool-size: 10
+  jpa:
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  cloud:
+    consul:
+      host: ${consul.host}
+      port: ${consul.port}
+      discovery:
+        hostname: ${consul.discovery.hostname}
+        instance-id: ${spring.application.name}-${random.value}
+        health-check-path: ${server.servlet.context-path}/actuator/health
+        health-check-interval: 10s
+    vault:
+      uri: ${VAULT_URI}
+      authentication: TOKEN
+      token: ${VAULT_TOKEN}
+      kv:
+        enabled: true
+api:
+  url: ${api.url}
+server:
+  port: 8080
+cors:
+  allowed-origins: ${api.cors.allowed.origins}
