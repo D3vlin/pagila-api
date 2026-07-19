@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -x "./mvnw" ]; then
+  MVN_CMD="./mvnw"
+elif command -v mvn >/dev/null 2>&1; then
+  MVN_CMD="mvn"
+else
+  echo "ERROR: Maven is not available. Install Maven or add mvnw to this repository."
+  exit 1
+fi
+
+echo "[pre-commit] Resolving SNAPSHOT versions..."
+DTO_VERSION=$($MVN_CMD -q help:evaluate -Dexpression=pagila.dto.version -DforceStdout)
+ENTITY_VERSION=$($MVN_CMD -q help:evaluate -Dexpression=pagila.entity.version -DforceStdout)
+MAPPER_VERSION=$($MVN_CMD -q help:evaluate -Dexpression=pagila.mapper.version -DforceStdout)
+
+echo "  pagila-dto     -> $DTO_VERSION"
+echo "  pagila-entity  -> $ENTITY_VERSION"
+echo "  pagila-mapper  -> $MAPPER_VERSION"
+
+for version in "$DTO_VERSION" "$ENTITY_VERSION" "$MAPPER_VERSION"; do
+  if [[ "$version" != *-SNAPSHOT ]]; then
+    echo "WARNING: version '$version' is not a SNAPSHOT. Did you mean to use the 'release' profile?"
+  fi
+done
+
+echo "[pre-commit] Compile..."
+$MVN_CMD -q -DskipTests compile || {
+  echo "ERROR: Compilation failed. Please correct the errors before committing."
+  exit 1
+}
+
