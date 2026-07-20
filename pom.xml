@@ -13,23 +13,27 @@
 	<version>1.0.0</version>
 	<name>pagila-api</name>
 	<description>API for Pagila Project</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
 		<java.version>21</java.version>
 		<spring-cloud.version>2025.1.2</spring-cloud.version>
+		<pagila.dto.version>1.0.0-SNAPSHOT</pagila.dto.version>
+		<pagila.entity.version>1.0.0-SNAPSHOT</pagila.entity.version>
+		<pagila.mapper.version>1.0.0-SNAPSHOT</pagila.mapper.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>pagila-dto</id>
+			<url>https://maven.pkg.github.com/d3vlin/pagila-dto</url>
+		</repository>
+		<repository>
+			<id>pagila-entity</id>
+			<url>https://maven.pkg.github.com/d3vlin/pagila-entity</url>
+		</repository>
+		<repository>
+			<id>pagila-mapper</id>
+			<url>https://maven.pkg.github.com/d3vlin/pagila-mapper</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -85,17 +89,17 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pagila-entity</artifactId>
-			<version>1.0.0</version>
+			<version>${pagila.entity.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pagila-dto</artifactId>
-			<version>1.0.0</version>
+			<version>${pagila.dto.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pagila-mapper</artifactId>
-			<version>1.0.0</version>
+			<version>${pagila.mapper.version}</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
