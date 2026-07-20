@@ -167,4 +167,27 @@
 		</plugins>
 	</build>
 
+	<distributionManagement>
+		<repository>
+			<id>pagila</id>
+			<url>https://maven.pkg.github.com/d3vlin/pagila-api</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<snapshotRepository>
+			<id>pagila</id>
+			<url>https://maven.pkg.github.com/d3vlin/pagila-api</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>

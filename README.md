@@ -129,6 +129,49 @@ These artifacts provide the transport models, persistence models, and object tra
 
 ---
 
+## 🧪 Local build workflow
+
+`pagila-api` consumes the shared Pagila artifacts through Maven properties and an opt-in profile for snapshots.
+
+### Release mode
+
+By default, the project resolves the stable published versions declared in `pom.xml`.
+
+### Snapshot mode
+
+To consume the latest internal snapshots, activate the profile:
+
+```powershell
+./mvnw clean verify
+```
+
+### Local hooks
+
+This repository includes Git hooks under `.githooks`:
+
+- `pre-commit` → compiles with `-Pinternal-snapshots`
+
+Enable them with:
+
+```powershell
+git config core.hooksPath .githooks
+```
+
+If you prefer system-wide hooks, point `core.hooksPath` to the shared folder you use in your workstation.
+
+### CI/CD policy
+
+This repository follows the same workflow split as the other Pagila modules:
+
+- `ci.yml` → validates the build on `push` and `pull_request`
+- `deploy.yml` → publishes the package after a successful `main` build
+- `pr-develop-guard.yml` → only allows `feature/*` or `main` into `develop`
+- `pr-main-guard.yml` → only allows `develop` into `main`
+
+For the protection to be effective, configure GitHub branch protection so these checks are required before merge.
+
+---
+
 ## 🧠 Philosophy
 
 This project is not just a demo.

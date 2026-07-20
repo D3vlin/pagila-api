@@ -1,25 +1,24 @@
-name: API CI
+name: API Deploy
 
 on:
-  pull_request:
-    branches: [ main, develop ]
-  push:
-    branches: [ main, develop ]
-
-concurrency:
-  group: api-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
+  workflow_run:
+    workflows: [ API CI ]
+    types: [ completed ]
 
 jobs:
-  build:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -51,6 +50,11 @@ jobs:
                 <username>${MAVEN_USERNAME}</username>
                 <password>${MAVEN_PASSWORD}</password>
               </server>
+              <server>
+                <id>pagila</id>
+                <username>${MAVEN_USERNAME}</username>
+                <password>${MAVEN_PASSWORD}</password>
+              </server>
             </servers>
           </settings>
           EOF
@@ -58,6 +62,6 @@ jobs:
           MAVEN_USERNAME: ${{ github.actor }}
           MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: Build
-        run: mvn -B -ntp clean verify
+      - name: Deploy package
+        run: mvn -B -ntp -DskipTests deploy
 
