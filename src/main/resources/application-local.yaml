@@ -1,10 +1,8 @@
 spring:
-  config:
-    import: "optional:vault://"
   datasource:
-    url: jdbc:postgresql://${db.host}:${db.port}/${db.name}
-    username: ${db.username}
-    password: ${db.password}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:pagila}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     hikari:
       auto-commit: false
       connection-test-query: SELECT 1
@@ -20,24 +18,17 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: none
-  cloud:
-    consul:
-      host: ${consul.host}
-      port: ${consul.port}
-      discovery:
-        hostname: ${consul.discovery.hostname}
-        instance-id: ${spring.application.name}-${random.value}
-        health-check-path: ${server.servlet.context-path}/actuator/health
-        health-check-interval: 10s
-    vault:
-      uri: ${VAULT_URI}
-      authentication: TOKEN
-      token: ${VAULT_TOKEN}
-      kv:
-        enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    info:
+      show-details: always
 api:
-  url: ${api.url}
-server:
-  port: 8080
+  url: ${API_URL:http://localhost:8080/pagila}
 cors:
-  allowed-origins: ${api.cors.allowed.origins}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}

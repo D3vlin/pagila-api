@@ -172,6 +172,53 @@ For the protection to be effective, configure GitHub branch protection so these 
 
 ---
 
+## 🚀 Deployment (Render + Supabase + Infisical)
+
+This API is deployed as a Docker **Web Service** on [Render](https://render.com) (free tier), backed by a [Supabase](https://supabase.com) Postgres database (free tier), with secrets managed in [Infisical](https://infisical.com) (free tier).
+
+The `develop`/`main` branches no longer depend on Consul or Vault — all configuration is read from environment variables via the `prod` Spring profile (`application-prod.yaml`).
+
+### Runtime environment variables (Render service)
+
+| Variable                | Purpose                                             | Source                          |
+|--------------------------|------------------------------------------------------|----------------------------------|
+| `SPRING_PROFILES_ACTIVE` | Activates `application-prod.yaml`                     | Render (literal value: `prod`)   |
+| `DB_HOST`                | Supabase Postgres host                                | Infisical → Render               |
+| `DB_PORT`                | Supabase Postgres port (`5432`, direct connection)    | Infisical → Render               |
+| `DB_NAME`                | Supabase database name                                | Infisical → Render               |
+| `DB_USERNAME`            | Supabase database user                                | Infisical → Render               |
+| `DB_PASSWORD`            | Supabase database password                            | Infisical → Render               |
+| `API_URL`                | Public Render URL, used only for the Swagger server entry | Infisical → Render          |
+| `CORS_ALLOWED_ORIGINS`   | Comma-separated list of allowed frontend origins      | Infisical → Render               |
+
+Use Supabase's **direct connection** (port `5432`), not the pgbouncer pooler: the service keeps a single Hikari pool of at most 3 connections (see `application-prod.yaml`), so there's no need for an extra pooling layer, and it avoids PgBouncer's prepared-statement caveats with Hibernate.
+
+### Build-time argument (Docker only, not synced from Infisical)
+
+Fetching `pagila-dto`, `pagila-entity` and `pagila-mapper` from GitHub Packages during the Docker build requires a token, passed as **build args**, not runtime env vars:
+
+| Build arg        | Purpose                                              |
+|-------------------|-------------------------------------------------------|
+| `GITHUB_ACTOR`    | GitHub username/org owning the packages                |
+| `GITHUB_TOKEN`    | Fine-grained PAT scoped to `read:packages` only        |
+
+Check Render's Docker build settings for how to supply build args for the service — this token is intentionally kept separate from the Infisical → Render runtime sync described below, since it is a build-time credential with a different blast radius (package read access) than the database secrets.
+
+### Infisical secret separation
+
+Recommended structure in Infisical to keep blast radius small:
+
+- **One project** (e.g. `pagila-api`) with the built-in **`dev`** and **`prod`** environments.
+- **`prod` environment** → holds the real Supabase production credentials and the public CORS origin(s). Synced automatically to the Render service via Infisical's native Render integration.
+- **`dev` environment** → holds local/dev-only values (a separate Supabase project or schema if possible, `http://localhost:3000` CORS origin, etc.), used for local development (see below) — never reused in `prod`.
+- The GitHub Packages read-only token is **not** part of either environment's runtime sync; store it separately (e.g. a `build` path/tag) so rotating Supabase credentials never requires touching build access, and vice versa.
+
+### Local development
+
+Running with no active profile (or `SPRING_PROFILES_ACTIVE=local`) uses `application-local.yaml`, which defaults to `localhost:5432/pagila` with `postgres/postgres` credentials and permissive actuator exposure — override any of `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `API_URL`, `CORS_ALLOWED_ORIGINS` as needed for your machine.
+
+---
+
 ## 🧠 Philosophy
 
 This project is not just a demo.

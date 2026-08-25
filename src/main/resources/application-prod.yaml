@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      auto-commit: false
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+      connection-timeout: 30000
+      initialization-fail-timeout: 0
+      minimum-idle: 1
+      maximum-pool-size: 3
+  jpa:
+    show-sql: false
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+api:
+  url: ${API_URL}
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
