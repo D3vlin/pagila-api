@@ -183,15 +183,15 @@ The `develop`/`main` branches no longer depend on Consul or Vault — all config
 | Variable                | Purpose                                             | Source                          |
 |--------------------------|------------------------------------------------------|----------------------------------|
 | `SPRING_PROFILES_ACTIVE` | Activates `application-prod.yaml`                     | Render (literal value: `prod`)   |
-| `DB_HOST`                | Supabase Postgres host                                | Infisical → Render               |
-| `DB_PORT`                | Supabase Postgres port (`5432`, direct connection)    | Infisical → Render               |
+| `DB_HOST`                | Supabase **Session Pooler** host (Supavisor)          | Infisical → Render               |
+| `DB_PORT`                | `5432` (session pooler port)                          | Infisical → Render               |
 | `DB_NAME`                | Supabase database name                                | Infisical → Render               |
-| `DB_USERNAME`            | Supabase database user                                | Infisical → Render               |
+| `DB_USERNAME`            | Supabase database user, pooler format: `postgres.<project-ref>` | Infisical → Render        |
 | `DB_PASSWORD`            | Supabase database password                            | Infisical → Render               |
 | `API_URL`                | Public Render URL, used only for the Swagger server entry | Infisical → Render          |
 | `CORS_ALLOWED_ORIGINS`   | Comma-separated list of allowed frontend origins      | Infisical → Render               |
 
-Use Supabase's **direct connection** (port `5432`), not the pgbouncer pooler: the service keeps a single Hikari pool of at most 3 connections (see `application-prod.yaml`), so there's no need for an extra pooling layer, and it avoids PgBouncer's prepared-statement caveats with Hibernate.
+Use Supabase's **Session Pooler** (`aws-0-<region>.pooler.supabase.com:5432`, username `postgres.<project-ref>`), not the direct connection (`db.<project-ref>.supabase.co`): the direct hostname resolves IPv6-only, and Render's containers have no IPv6 egress, which fails at runtime with `SocketException: Network is unreachable`. The pooler is IPv4-compatible. Session mode (not transaction mode / port `6543`) matches this service's small persistent Hikari pool (see `application-prod.yaml`) and keeps normal prepared-statement behavior with Hibernate.
 
 ### Build-time argument (Docker only, not synced from Infisical)
 
