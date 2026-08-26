@@ -4,13 +4,14 @@
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-ARG GITHUB_ACTOR
-ARG GITHUB_TOKEN
-
 COPY pom.xml .
 COPY src ./src
 
-RUN mkdir -p /root/.m2 && { \
+RUN --mount=type=secret,id=github_actor \
+    --mount=type=secret,id=github_token \
+    GITHUB_ACTOR="$(cat /run/secrets/github_actor)" && \
+    GITHUB_TOKEN="$(cat /run/secrets/github_token)" && \
+    mkdir -p /root/.m2 && { \
       echo '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">'; \
       echo '  <servers>'; \
       echo "    <server><id>pagila-dto</id><username>${GITHUB_ACTOR}</username><password>${GITHUB_TOKEN}</password></server>"; \
